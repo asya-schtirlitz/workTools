@@ -6,7 +6,7 @@ import java.util.List;
 
 public class tsvReader{
     public static void main(String args[]) throws Exception{
-        BufferedReader tsvFile = new BufferedReader(new FileReader("C:\\Users\\amalancheva\\Documents\\temp\\JAVA\\test.tsv"));
+        BufferedReader tsvFile = new BufferedReader(new FileReader("C:\\test\\test.txt"));
         String dataRow = tsvFile.readLine();
 
         while (dataRow != null){
