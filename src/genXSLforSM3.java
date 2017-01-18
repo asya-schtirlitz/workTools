@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,15 +15,29 @@ public class genXSLforSM3 {
         BufferedReader tsvFile = new BufferedReader(new FileReader("c:\\zip\\test.tsv"));
         String dataRow = tsvFile.readLine();
         String filePath = "c:\\zip\\test.txt";
+        HashMap<String, List<Field>> fieldsMap = new HashMap<String, List<Field>>();
 
-        int i = 1;
+       // int i = 1;
 
         while (dataRow != null){
             List<String> list = new ArrayList<String>();
             String[] dataArray = dataRow.split("\t");
 
             Field element = new Field(dataArray[0], dataArray[7]);
-            System.out.println(element.template);
+
+
+            if (!fieldsMap.containsKey(dataArray[1])){
+                List<Field> fieldsList = new ArrayList<Field>();
+                fieldsList.add(element);
+                fieldsMap.put(dataArray[1],fieldsList);
+            } else{
+                fieldsMap.get(dataArray[1]).add(element);
+            }
+
+
+            //Field element = new Field(dataArray[0], dataArray[7]);
+            String newStr = element.template;
+            //System.out.println(element.template.replaceAll("FieldName",element.name ));
             for (String item:dataArray){
                 list.add(item);
             }
@@ -37,6 +52,21 @@ public class genXSLforSM3 {
             dataRow = tsvFile.readLine();
 
         }
+        Iterator<String> i = fieldsMap.keySet().iterator();
+
+        while (i.hasNext()){
+            String stroka = i.next();
+            Iterator<Field> it = fieldsMap.get(stroka).iterator();
+            System.out.print(createTag(stroka, "OPEN"));
+            while (it.hasNext()){
+                Field elem = it.next();
+                String txt = elem.template;
+
+                System.out.print(txt.replaceAll("FieldName",elem.name));
+            }
+            System.out.print(createTag(stroka, "CLOSE"));
+        }
+        //System.out.println(fieldsMap.get("BPERSON"));
 
         tsvFile.close();
         System.out.println();
@@ -74,7 +104,7 @@ class Field{
             "\t\t\t<xsl:with-param name=\"ReplaceableText_tag\">FieldName</xsl:with-param>\n" +
             "\t\t</xsl:call-template>\n" +
             "\t</xsl:otherwise>\n" +
-            "</xsl:choose>";
+            "</xsl:choose>\n";
 
     public Field(String fieldNname, String type){
         this.name = fieldNname;
